@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Randy Fish — The Consciousness Experience</title>
+  <meta name="description" content="Not a website. An interactive journey through consciousness, creation and the future — by author Randy Fish." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <!-- ══════════ WEBGL CANVAS ══════════ -->
+  <canvas id="webgl"></canvas>
+
+  <!-- ══════════ PRELOADER / ARRIVAL GATE ══════════ -->
+  <div id="gate" class="gate">
+    <div class="gate__inner">
+      <div class="gate__monogram">R<span>F</span></div>
+      <h1 class="gate__title">RANDY FISH</h1>
+      <p class="gate__sub">THE CONSCIOUSNESS EXPERIENCE</p>
+      <p class="gate__hint">Headphones recommended &middot; Sound on</p>
+      <button id="enter-btn" class="btn btn--gold magnetic"><span>BEGIN THE JOURNEY</span></button>
+      <p class="gate__note">Not a website. An interactive journey.</p>
+    </div>
+  </div>
+
+  <!-- ══════════ SCENE CAPTIONS (fixed, faded by scroll) ══════════ -->
+  <div id="captions">
+    <div class="caption" data-cap="arrival">
+      <p class="caption__line caption__line--serif">"Before consciousness&hellip; there was silence."</p>
+    </div>
+    <div class="caption" data-cap="genesis">
+      <p class="caption__kicker">SCENE II — THE BIRTH OF CONSCIOUSNESS</p>
+      <p class="caption__line">Move your cursor. <em>You</em> are creating this universe.</p>
+    </div>
+    <div class="caption" data-cap="randy">
+      <p class="caption__kicker">SCENE III — HE MATERIALIZES</p>
+      <p class="caption__line caption__line--serif" id="randy-line">"I've been waiting for you."</p>
+      <button id="talk-btn" class="btn btn--ghost magnetic"><span>TALK TO RANDY</span></button>
+    </div>
+    <div class="caption" data-cap="books">
+      <p class="caption__kicker">SCENE V — LIVING BOOKS</p>
+      <p class="caption__line">These are not images. Touch one.</p>
+    </div>
+    <div class="caption" data-cap="library">
+      <p class="caption__kicker">SCENE VI — THE GALAXY LIBRARY</p>
+      <p class="caption__line">Each book is a world. Each world is waiting.</p>
+    </div>
+    <div class="caption" data-cap="dna">
+      <p class="caption__kicker">SCENE VII — THE DNA TIMELINE</p>
+      <p class="caption__line">One life, written in strands.</p>
+      <ul class="dna-legend">
+        <li>MILITARY</li><li>ENGINEERING</li><li>JEWELRY</li><li>AI</li><li>WRITING</li><li>FUTURE</li>
+      </ul>
+    </div>
+    <div class="caption" data-cap="network">
+      <p class="caption__kicker">SCENE IX — THE CONSCIOUSNESS NETWORK</p>
+      <p class="caption__line">Every light is a mind. One of them is you.</p>
+    </div>
+    <div class="caption" data-cap="egg">
+      <p class="caption__kicker">SCENE XI — THE GOLDEN EGG</p>
+      <p class="caption__line">It hears your heartbeat. Stay with it&hellip;</p>
+      <p class="caption__timer"><span id="egg-timer">90</span>s until hatching &middot; touch the egg to help it crack</p>
+    </div>
+  </div>
+
+  <!-- ══════════ HUD ══════════ -->
+  <div id="hud" class="hud">
+    <div class="hud__brand">R<span>F</span></div>
+    <div class="hud__progress"><div id="progress-fill"></div></div>
+    <button id="mute-btn" class="hud__mute" aria-label="Toggle sound">SOUND&nbsp;ON</button>
+    <div id="scroll-hint" class="hud__hint">
+      <span>SCROLL TO TRAVEL</span>
+      <div class="hud__hint-line"></div>
+    </div>
+  </div>
+
+  <!-- ══════════ SCROLL SPACE (drives the camera) ══════════ -->
+  <div id="journey">
+    <section class="waypoint" data-scene="arrival"></section>
+    <section class="waypoint" data-scene="genesis"></section>
+    <section class="waypoint" data-scene="randy"></section>
+    <section class="waypoint" data-scene="books"></section>
+    <section class="waypoint" data-scene="library"></section>
+    <section class="waypoint" data-scene="dna"></section>
+    <section class="waypoint" data-scene="network"></section>
+    <section class="waypoint" data-scene="egg"></section>
+  </div>
+
+  <!-- ══════════ FINAL PAGE (revealed after the journey) ══════════ -->
+  <div id="site" class="site" aria-hidden="true">
+    <header class="site__nav">
+      <div class="site__logo">R<span>F</span> RANDY FISH</div>
+      <nav>
+        <a href="#site-about">ABOUT</a>
+        <a href="#site-books">BOOKS</a>
+        <a href="#site-join">CONTACT</a>
+      </nav>
+      <button class="btn btn--gold btn--small magnetic" data-scrollto="#site-books"><span>GET THE BOOKS</span></button>
+    </header>
+
+    <section class="site__hero" id="site-about">
+      <p class="site__kicker">AUTHOR. VISIONARY. STORYTELLER.</p>
+      <h2 class="site__h1">Stories That <span>Challenge Reality.</span><br/>Ideas That Shape <span>The Future.</span></h2>
+      <p class="site__lede">Randy Fish is an author, inventor and visionary explorer of consciousness and humanity's
+        future. Through his writing he challenges the boundaries of what we believe is possible — a bridge
+        between science and soul, technology and spirit.</p>
+      <blockquote class="site__quote">
+        "Consciousness is not something we create. It is the force that creates everything."
+        <cite>— Randy Fish</cite>
+      </blockquote>
+    </section>
+
+    <section class="site__books" id="site-books">
+      <p class="site__kicker">THE BOOKS</p>
+      <h3 class="site__h2">Explore His Works</h3>
+      <div class="site__grid" id="book-grid"><!-- cards injected --></div>
+    </section>
+
+    <section class="site__join" id="site-join">
+      <blockquote class="site__quote site__quote--big">
+        "We are not here to survive. We are here to evolve, create, and become the best version of consciousness itself."
+        <cite>— Randy Fish</cite>
+      </blockquote>
+      <div class="site__newsletter">
+        <p class="site__kicker">STAY INSPIRED</p>
+        <h3 class="site__h2">Join the Consciousness Community</h3>
+        <p>Get updates on new books, articles, and events.</p>
+        <form id="join-form">
+          <input type="email" placeholder="Enter your email address" required />
+          <button class="btn btn--gold magnetic" type="submit"><span>SUBSCRIBE</span></button>
+        </form>
+        <p class="site__joined" id="join-ok">Welcome to the network. You are now a node. ✦</p>
+      </div>
+    </section>
+
+    <footer class="site__footer">
+      <div class="site__logo">R<span>F</span> RANDY FISH</div>
+      <button id="replay-btn" class="btn btn--ghost btn--small magnetic"><span>↺ RELIVE THE JOURNEY</span></button>
+      <p>© 2026 Randy Fish. All rights reserved.</p>
+    </footer>
+  </div>
+
+  <!-- ══════════ BOOK MODAL ══════════ -->
+  <div id="book-modal" class="modal" aria-hidden="true">
+    <div class="modal__panel">
+      <button class="modal__close" id="modal-close" aria-label="Close">✕</button>
+      <p class="modal__kicker" id="modal-kicker"></p>
+      <h3 class="modal__title" id="modal-title"></h3>
+      <p class="modal__body" id="modal-body"></p>
+      <blockquote class="modal__quote" id="modal-quote"></blockquote>
+    </div>
+  </div>
+
+  <!-- ══════════ CHAT WITH RANDY (AI avatar stub) ══════════ -->
+  <div id="chat" class="chat" aria-hidden="true">
+    <div class="chat__panel">
+      <div class="chat__head">
+        <div class="chat__status"><span class="chat__pulse"></span> RANDY — CONSCIOUS</div>
+        <button class="chat__close" id="chat-close" aria-label="Close">✕</button>
+      </div>
+      <div class="chat__log" id="chat-log"></div>
+      <form class="chat__form" id="chat-form">
+        <input id="chat-input" type="text" placeholder="Ask Randy anything… e.g. What inspired The Golden Egg?" autocomplete="off" />
+        <button class="btn btn--gold btn--small" type="submit"><span>SEND</span></button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ══════════ FLASH + GLITCH / REALITY BREAK ══════════ -->
+  <div id="flash"></div>
+  <div id="glitch" class="glitch" aria-hidden="true">
+    <div class="glitch__scan"></div>
+    <div class="glitch__term">
+      <pre id="glitch-text"></pre>
+    </div>
+  </div>
+
+  <!-- ══════════ CUSTOM CURSOR ══════════ -->
+  <div id="cursor-dot"></div>
+  <div id="cursor-ring"></div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
