@@ -238,14 +238,52 @@
     </footer>
   </div>
 
-  <!-- ══════════ BOOK MODAL ══════════ -->
-  <div id="book-modal" class="modal" aria-hidden="true">
-    <div class="modal__panel">
-      <button class="modal__close" id="modal-close" aria-label="Close">✕</button>
-      <p class="modal__kicker" id="modal-kicker"></p>
-      <h3 class="modal__title" id="modal-title"></h3>
-      <p class="modal__body" id="modal-body"></p>
-      <blockquote class="modal__quote" id="modal-quote"></blockquote>
+  <!-- ══════════ THE LIVING BOOK (opens with real page turns) ══════════ -->
+  <div id="bookview" class="bookview" aria-hidden="true">
+    <div class="bookview__scrim" id="bookview-scrim"></div>
+    <button class="bookview__close" id="bookview-close" aria-label="Close">✕</button>
+    <div class="bookview__stage">
+      <div class="book3d" id="book3d">
+        <!-- left half: blank paper beneath the opened cover -->
+        <div class="book3d__left" id="book-left">
+          <div class="bookpage bookpage--blank"><div class="bookpage__orn">✦</div></div>
+        </div>
+        <!-- right half: under-page (chapters), turnable page, front cover -->
+        <div class="book3d__right">
+          <div class="bookpage bookpage--under">
+            <p class="bookpage__kicker">CHAPTERS</p>
+            <ol class="bookpage__chapters" id="bp-chapters"></ol>
+            <p class="bookpage__note">Available wherever visionary books are sold.</p>
+            <p class="bookpage__pagenum">3</p>
+          </div>
+          <div class="book3d__flip" id="book-flip">
+            <div class="bookpage book3d__face book3d__face--front">
+              <p class="bookpage__kicker">ABOUT THIS BOOK</p>
+              <p class="bookpage__body" id="bp-blurb"></p>
+              <blockquote class="bookpage__quote" id="bp-quote"></blockquote>
+              <p class="bookpage__pagenum">1</p>
+            </div>
+            <div class="bookpage book3d__face book3d__face--back">
+              <p class="bookpage__kicker">FROM THE OPENING PAGES</p>
+              <p class="bookpage__body" id="bp-ex1"></p>
+              <p class="bookpage__body bookpage__body--em" id="bp-ex2"></p>
+              <p class="bookpage__pagenum">2</p>
+            </div>
+          </div>
+          <div class="book3d__cover" id="book-cover">
+            <div class="book3d__face book3d__face--front book3d__coverimg" id="bp-coverimg"></div>
+            <!-- the inside of the cover is the title page -->
+            <div class="bookpage book3d__face book3d__face--back bookpage--title">
+              <p class="bookpage__kicker" id="bp-kicker"></p>
+              <h3 class="bookpage__title" id="bp-title"></h3>
+              <div class="bookpage__orn">✦</div>
+              <p class="bookpage__tag" id="bp-tag"></p>
+              <p class="bookpage__author">R A N D Y &nbsp; F I S H</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <button id="page-btn" class="btn btn--gold btn--small magnetic"><span>TURN THE PAGE →</span></button>
     </div>
   </div>
 

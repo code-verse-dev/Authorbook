@@ -165,6 +165,31 @@ class AudioEngine {
     this.whoosh(2.6, 0.22);
   }
 
+  // ── Paper swish for the book page turns ──
+  pageTurn() {
+    if (!this.ctx || this.muted) return;
+    const t = this.ctx.currentTime;
+    const dur = 0.5;
+    const len = Math.floor(this.ctx.sampleRate * dur);
+    const buf = this.ctx.createBuffer(1, len, this.ctx.sampleRate);
+    const data = buf.getChannelData(0);
+    for (let i = 0; i < len; i++) data[i] = Math.random() * 2 - 1;
+    const src = this.ctx.createBufferSource();
+    src.buffer = buf;
+    const bp = this.ctx.createBiquadFilter();
+    bp.type = 'bandpass';
+    bp.Q.value = 0.8;
+    bp.frequency.setValueAtTime(600, t);
+    bp.frequency.exponentialRampToValueAtTime(3200, t + dur * 0.6);
+    bp.frequency.exponentialRampToValueAtTime(900, t + dur);
+    const g = this.ctx.createGain();
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.11, t + dur * 0.35);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    src.connect(bp).connect(g).connect(this.bus);
+    src.start(t);
+  }
+
   // ── Short UI blip ──
   blip(freq = 880) {
     if (!this.ctx || this.muted) return;

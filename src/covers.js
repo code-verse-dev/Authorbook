@@ -10,7 +10,10 @@ export const BOOKS = [
     accent: '#6fa8ff',
     emblem: 'head',
     blurb: 'Where physics ends and awareness begins. A journey across the bridge between quantum reality and the conscious mind — and what waits for humanity on the other side.',
-    quote: '"The observer was never outside the experiment. The observer IS the experiment."'
+    quote: '"The observer was never outside the experiment. The observer IS the experiment."',
+    excerpt: 'The bridge did not announce itself. It appeared the way all true thresholds do — quietly, in the space between one thought and the next. Dr. Elias Hart had spent twenty years measuring the universe, and in a single evening the universe began measuring him.',
+    excerpt2: 'What he found on the other side was not an equation. It was a mirror — and it was awake.',
+    chapters: ['The Observer Effect', 'The Space Between Thoughts', 'Crossing', 'The Mirror That Measures Back', "Humanity's Next Evolution"]
   },
   {
     id: 'force',
@@ -20,7 +23,10 @@ export const BOOKS = [
     accent: '#f4d488',
     emblem: 'figure',
     blurb: 'Gravity bends space. Light defines time. But one force writes the laws for all the others. An exploration of consciousness as the true nature of reality and awareness.',
-    quote: '"Consciousness is not something we create. It is the force that creates everything."'
+    quote: '"Consciousness is not something we create. It is the force that creates everything."',
+    excerpt: 'Before there was light, there was the noticing of light. Science calls it emergence. The mystics called it breath. This book calls it what it has always been — the fundamental force.',
+    excerpt2: 'Gravity holds the planets. Consciousness holds gravity.',
+    chapters: ['The Missing Constant', 'Breath Before Light', 'The Laws That Watch', 'Everything, Aware', 'The Force That Creates']
   },
   {
     id: 'july',
@@ -30,7 +36,10 @@ export const BOOKS = [
     accent: '#ff8d6b',
     emblem: 'flag',
     blurb: 'A novel about awakening, freedom, and a new beginning — the day the world remembered what it was meant to become.',
-    quote: '"Freedom was never given. It was remembered."'
+    quote: '"Freedom was never given. It was remembered."',
+    excerpt: 'The fireworks that year did not end. They hung in the sky like questions, and the whole town stood beneath them, remembering — all at once — what they had agreed to forget.',
+    excerpt2: 'Freedom, it turned out, was not a document. It was a decision, renewed each morning like the sun.',
+    chapters: ['The Longest Night', 'Sparks', 'The Town That Remembered', 'A New Declaration', 'Rebirth of the World']
   },
   {
     id: 'egg',
@@ -40,7 +49,10 @@ export const BOOKS = [
     accent: '#f4d488',
     emblem: 'egg',
     blurb: 'A chronicle of consciousness and creation. Inside every ending sleeps a beginning — and inside this one, something is about to hatch.',
-    quote: '"Everything that ever mattered began inside a shell it had to break."'
+    quote: '"Everything that ever mattered began inside a shell it had to break."',
+    excerpt: 'In the beginning there was a shell, and the shell was patient. It held its light the way a promise holds its word — completely, and in the dark.',
+    excerpt2: 'Everything that ever mattered began inside something it had to break.',
+    chapters: ['The Shell', 'The Listening Dark', 'First Crack', 'Golden', 'What Hatches']
   }
 ];
 

@@ -161,8 +161,9 @@ a, button, input { cursor: none; }
 
 /* ── Scroll space ─────────────────────────────── */
 #journey { position: relative; z-index: 1; pointer-events: none; }
-.waypoint { height: 160vh; }
-.waypoint[data-scene="egg"] { height: 220vh; }
+.waypoint { height: 280vh; }
+.waypoint[data-scene="arrival"] { height: 200vh; }
+.waypoint[data-scene="egg"] { height: 340vh; }
 
 /* ── Final site section ───────────────────────── */
 .site {
@@ -382,30 +383,121 @@ a, button, input { cursor: none; }
 .site__footnav span { color: rgba(212,175,95,0.3); font-size: 0.6rem; }
 .site__footer p { color: var(--grey); font-size: 0.65rem; letter-spacing: 0.1em; }
 
-/* ── Book modal ───────────────────────────────── */
-.modal {
+/* ── The Living Book (3D open + page turns) ───── */
+.bookview {
   position: fixed; inset: 0; z-index: 70;
   display: none; align-items: center; justify-content: center;
-  background: rgba(3,3,4,0.82); backdrop-filter: blur(10px);
 }
-.modal.open { display: flex; }
-.modal__panel {
-  position: relative; width: min(92vw, 560px);
-  border: 1px solid rgba(212,175,95,0.35);
-  background: linear-gradient(160deg, #0c0b10, #050508);
-  padding: 3rem 2.6rem;
-  box-shadow: 0 40px 120px -40px rgba(212,175,95,0.35);
+.bookview.open { display: flex; }
+.bookview__scrim {
+  position: absolute; inset: 0;
+  background: rgba(2,2,4,0.86); backdrop-filter: blur(10px);
 }
-.modal__close, .chat__close {
+.bookview__close {
+  position: absolute; top: 1.6rem; right: 1.8rem; z-index: 3;
+  background: none; border: 1px solid rgba(212,175,95,0.35); border-radius: 50%;
+  width: 42px; height: 42px;
+  color: var(--grey); font-size: 0.95rem;
+  transition: color 0.3s, transform 0.4s, border-color 0.3s;
+}
+.bookview__close:hover { color: var(--gold-bright); border-color: var(--gold-bright); transform: rotate(90deg); }
+.chat__close {
   position: absolute; top: 1rem; right: 1.1rem;
   background: none; border: none; color: var(--grey); font-size: 1rem;
   transition: color 0.3s, transform 0.3s;
 }
-.modal__close:hover, .chat__close:hover { color: var(--gold-bright); transform: rotate(90deg); }
-.modal__kicker { font-size: 0.58rem; letter-spacing: 0.4em; color: var(--gold); margin-bottom: 0.9rem; }
-.modal__title { font-family: var(--serif); font-size: 1.9rem; font-weight: 600; margin-bottom: 1.1rem; }
-.modal__body { color: var(--grey); font-size: 0.86rem; line-height: 1.8; margin-bottom: 1.6rem; }
-.modal__quote { font-family: var(--serif); font-style: italic; font-size: 1.1rem; color: var(--gold-bright); line-height: 1.6; }
+.chat__close:hover { color: var(--gold-bright); transform: rotate(90deg); }
+.bookview__stage {
+  position: relative; z-index: 2; text-align: center;
+  perspective: 2000px;
+}
+.book3d {
+  position: relative;
+  width: min(88vw, 820px);
+  aspect-ratio: 1 / 0.68;
+  transform-style: preserve-3d;
+  margin: 0 auto;
+  filter: drop-shadow(0 60px 50px rgba(0,0,0,0.65));
+}
+.book3d__left, .book3d__right {
+  position: absolute; top: 0; width: 50%; height: 100%;
+  transform-style: preserve-3d;
+}
+.book3d__left { left: 0; }
+.book3d__right { left: 50%; }
+.book3d__flip, .book3d__cover {
+  position: absolute; inset: 0;
+  transform-style: preserve-3d;
+  transform-origin: left center;
+}
+.book3d__cover { z-index: 3; }
+.book3d__flip { z-index: 2; }
+.book3d__face {
+  position: absolute; inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  overflow: hidden;
+}
+.book3d__face--back { transform: rotateY(180deg); }
+.book3d__coverimg {
+  background-size: cover; background-position: center;
+  border-radius: 3px 10px 10px 3px;
+  box-shadow: inset 4px 0 12px rgba(0,0,0,0.6);
+}
+.bookpage--title { border-radius: 10px 3px 3px 10px; }
+.bookpage--blank { align-items: center; justify-content: center; }
+.bookpage--blank .bookpage__orn { opacity: 0.35; }
+
+.bookpage {
+  position: absolute; inset: 0;
+  background:
+    linear-gradient(90deg, rgba(120,95,50,0.16), transparent 9%),
+    repeating-linear-gradient(0deg, rgba(140,120,80,0.05) 0 2px, transparent 2px 26px),
+    linear-gradient(160deg, #f3ecd8, #e9dfc4);
+  color: #2b2313;
+  padding: clamp(1.2rem, 3.4vw, 2.8rem);
+  text-align: left;
+  border-radius: 3px 8px 8px 3px;
+  display: flex; flex-direction: column;
+}
+.book3d__left .bookpage {
+  border-radius: 8px 3px 3px 8px;
+  background:
+    linear-gradient(-90deg, rgba(120,95,50,0.18), transparent 9%),
+    repeating-linear-gradient(0deg, rgba(140,120,80,0.05) 0 2px, transparent 2px 26px),
+    linear-gradient(200deg, #f0e8d2, #e5dabd);
+}
+.bookpage__kicker { font-size: 0.56rem; letter-spacing: 0.4em; color: #8a6d2f; margin-bottom: 1.1rem; }
+.bookpage__title {
+  font-family: var(--serif); font-weight: 600;
+  font-size: clamp(1.3rem, 3vw, 2.2rem); line-height: 1.15; color: #211a0c;
+  margin-bottom: 1rem;
+}
+.bookpage__orn { color: #b08d3c; font-size: 1rem; margin: 0.4rem 0 1rem; }
+.bookpage__tag { font-size: 0.62rem; letter-spacing: 0.28em; color: #6b5a35; margin-bottom: auto; }
+.bookpage__author { font-size: 0.68rem; letter-spacing: 0.3em; color: #8a6d2f; margin-top: 1.6rem; }
+.bookpage__body { font-family: var(--serif); font-size: clamp(0.85rem, 1.5vw, 1.05rem); line-height: 1.75; margin-bottom: 1rem; }
+.bookpage__body--em { font-style: italic; color: #6b5327; }
+.bookpage__body::first-letter { font-size: 1.6em; color: #8a6d2f; }
+.bookpage__quote {
+  font-family: var(--serif); font-style: italic;
+  font-size: clamp(0.85rem, 1.5vw, 1rem); line-height: 1.6; color: #7a5f2b;
+  border-left: 2px solid #b08d3c; padding-left: 0.9rem; margin-top: auto;
+}
+.bookpage__chapters {
+  font-family: var(--serif); font-size: clamp(0.85rem, 1.5vw, 1.02rem);
+  line-height: 2.15; color: #3a2f18; padding-left: 1.4rem; margin-bottom: auto;
+}
+.bookpage__note { font-size: 0.6rem; letter-spacing: 0.16em; color: #8a7345; margin-top: 1rem; }
+.bookpage__pagenum { position: absolute; bottom: 0.9rem; right: 1.3rem; font-family: var(--serif); font-size: 0.75rem; color: #8a7345; }
+.bookpage--under .bookpage__pagenum { right: 1.3rem; }
+#page-btn { margin-top: 2.2rem; }
+
+@media (max-width: 700px) {
+  .book3d { width: 94vw; aspect-ratio: 1 / 0.78; }
+  .bookpage__kicker { margin-bottom: 0.5rem; }
+  .bookpage__quote { display: none; }
+}
 
 /* ── Chat panel ───────────────────────────────── */
 .chat {

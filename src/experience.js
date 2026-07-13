@@ -139,7 +139,7 @@ export class Experience {
   _initScene() {
     this.scene = new THREE.Scene();
     this.scene.background = new THREE.Color('#030304');
-    this.scene.fog = new THREE.Fog('#030304', 55, 190);
+    this.scene.fog = new THREE.Fog('#030304', 55, 235);
 
     this.camera = new THREE.PerspectiveCamera(58, window.innerWidth / window.innerHeight, 0.1, 2000);
     this.camera.position.set(0, 0, 14);
@@ -430,7 +430,7 @@ export class Experience {
         );
         mesh.position.set(Math.cos(angle) * rad, (Math.random() - 0.5) * 2.2, Math.sin(angle) * rad * 0.55 - 4);
         mesh.userData.book = BOOKS[(a * perArm + i) % BOOKS.length];
-        mesh.userData.orbit = { angle, rad, speed: 0.02 + (1 - t) * 0.05, y: mesh.position.y };
+        mesh.userData.orbit = { angle, rad, speed: 0.01 + (1 - t) * 0.025, y: mesh.position.y };
         g.add(mesh);
         this.planets.push(mesh);
       }
@@ -756,7 +756,7 @@ export class Experience {
       this.pointer.set((e.clientX / window.innerWidth) * 2 - 1, -(e.clientY / window.innerHeight) * 2 + 1);
     });
     window.addEventListener('click', (e) => {
-      if (e.target.closest('button, a, input, .chat, .modal, .site')) return;
+      if (e.target.closest('button, a, input, .chat, .bookview, .site')) return;
       this._raycastClick();
     });
   }
@@ -802,9 +802,9 @@ export class Experience {
   revealStars() { this.starsGroup.visible = true; }
 
   sceneActivity(name) {
-    // 1 when the camera sits at the scene, fading over ±70 units
+    // 1 when the camera sits at the scene, fading over ±88 units
     const camZ = this.camRig.position.z;
-    return THREE.MathUtils.clamp(1 - Math.abs(camZ - SCENE_Z[name]) / 70, 0, 1);
+    return THREE.MathUtils.clamp(1 - Math.abs(camZ - SCENE_Z[name]) / 88, 0, 1);
   }
 
   // ═════════ frame loop ═════════
@@ -812,9 +812,9 @@ export class Experience {
     const dt = Math.min(this.clock.getDelta(), 0.05);
     const t = this.clock.elapsedTime;
 
-    // ── camera dolly along the journey ──
+    // ── camera dolly along the journey (slow, weighted glide) ──
     const targetZ = 14 - this.journeyP * (SCENE_SPACING * (SCENES.length - 1) + 4);
-    this.camRig.position.z += (targetZ - this.camRig.position.z) * Math.min(1, dt * 5);
+    this.camRig.position.z += (targetZ - this.camRig.position.z) * Math.min(1, dt * 2);
 
     // parallax look — the cursor bends the view
     this.camera.position.x += (this.pointer.x * 2.2 - this.camera.position.x) * dt * 2.4;
@@ -965,7 +965,7 @@ export class Experience {
     const act = this.sceneActivity('dna');
     this.dna.visible = act > 0.01;
     if (!this.dna.visible) return;
-    this.dna.rotation.y += dt * 0.25;
+    this.dna.rotation.y += dt * 0.13;
     // era markers glow in sequence as the scene plays
     this.dnaMarkers.forEach((m, i) => {
       const phase = THREE.MathUtils.clamp(act * 7 - i, 0, 1);
@@ -977,7 +977,7 @@ export class Experience {
     const act = this.sceneActivity('network');
     this.network.visible = act > 0.01;
     if (!this.network.visible) return;
-    this.network.rotation.y += dt * 0.08;
+    this.network.rotation.y += dt * 0.045;
     this.pulses.forEach((p) => {
       p.t = (p.t + dt * p.speed) % 1;
       p.curve.getPoint(p.t, p.sprite.position);

@@ -80,10 +80,10 @@ $('#enter-btn').addEventListener('click', () => {
       audio.startHeartbeat(1100);
       audio.startAmbient();
       audio.whoosh(3, 0.14);
-      gsap.fromTo(exp.renderer, { toneMappingExposure: 0 }, { toneMappingExposure: 1.1, duration: 4, ease: 'power2.out' });
+      gsap.fromTo(exp.renderer, { toneMappingExposure: 0 }, { toneMappingExposure: 1.1, duration: 6, ease: 'power2.out' });
     }, '+=0.9')
     // "Before consciousness… there was silence."
-    .to('[data-cap="arrival"]', { autoAlpha: 1, duration: 2.4, ease: 'power2.out' }, '+=1.2')
+    .to('[data-cap="arrival"]', { autoAlpha: 1, duration: 3.2, ease: 'power2.out' }, '+=1.6')
     .add(() => {
       document.body.classList.remove('no-scroll');
       ScrollTrigger.refresh();
@@ -98,7 +98,7 @@ ScrollTrigger.create({
   trigger: '#journey',
   start: 'top top',
   end: 'bottom bottom',
-  scrub: 0.8,
+  scrub: 1.6, // heavy, cinematic lag — the camera glides, never snaps
   onUpdate: (self) => {
     exp.setJourneyProgress(self.progress);
     gsap.set('#progress-fill', { width: `${self.progress * 100}%` });
@@ -115,8 +115,8 @@ $$('.waypoint').forEach((wp) => {
     end: 'bottom 55%',
     onEnter: () => enterScene(name, cap),
     onEnterBack: () => enterScene(name, cap),
-    onLeave: () => cap && gsap.to(cap, { autoAlpha: 0, duration: 0.7, overwrite: 'auto' }),
-    onLeaveBack: () => cap && gsap.to(cap, { autoAlpha: 0, duration: 0.7, overwrite: 'auto' }),
+    onLeave: () => cap && gsap.to(cap, { autoAlpha: 0, duration: 1.2, overwrite: 'auto' }),
+    onLeaveBack: () => cap && gsap.to(cap, { autoAlpha: 0, duration: 1.2, overwrite: 'auto' }),
     onUpdate: (self) => {
       if (name === 'dna') {
         // light the six eras in sequence
@@ -129,7 +129,7 @@ $$('.waypoint').forEach((wp) => {
 
 function enterScene(name, cap) {
   if (!started) return;
-  if (cap) gsap.fromTo(cap, { autoAlpha: 0, y: 24 }, { autoAlpha: 1, y: 0, duration: 1.1, ease: 'power3.out', overwrite: 'auto' });
+  if (cap) gsap.fromTo(cap, { autoAlpha: 0, y: 24 }, { autoAlpha: 1, y: 0, duration: 2, ease: 'power3.out', overwrite: 'auto' });
   if (name !== 'arrival') audio.whoosh(1.3, 0.1);
   $('#scroll-hint').style.opacity = name === 'arrival' ? '' : '0';
 
@@ -303,22 +303,91 @@ $$('[data-scrollto]').forEach((b) =>
   b.addEventListener('click', () => $(b.dataset.scrollto)?.scrollIntoView({ behavior: 'smooth' })));
 
 // ────────────────────────────────────────────────
-// BOOK MODAL
+// THE LIVING BOOK — tap a book, it opens itself,
+// the cover swings, pages turn, content is inside
 // ────────────────────────────────────────────────
+const bookview = $('#bookview');
+let bookOpen = false;
+let pageState = 0; // 0 closed · 1 spread (page 1) · 2 page turned (2/3)
+
 function openBook(book) {
-  if (!book) return;
-  $('#modal-kicker').textContent = book.tag;
-  $('#modal-title').textContent = book.title;
-  $('#modal-body').textContent = book.blurb;
-  $('#modal-quote').textContent = book.quote;
-  $('#book-modal').classList.add('open');
+  if (!book || bookOpen) return;
+  bookOpen = true;
+  pageState = 1;
+
+  // fill the pages
+  $('#bp-kicker').textContent = 'A BOOK BY RANDY FISH';
+  $('#bp-title').textContent = book.title;
+  $('#bp-tag').textContent = book.tag;
+  $('#bp-blurb').textContent = book.blurb;
+  $('#bp-quote').textContent = book.quote;
+  $('#bp-ex1').textContent = book.excerpt;
+  $('#bp-ex2').textContent = book.excerpt2;
+  $('#bp-chapters').innerHTML = book.chapters.map((c) => `<li>${c}</li>`).join('');
+  $('#bp-coverimg').style.backgroundImage = `url(${paintCover(book, 320, 460).toDataURL('image/jpeg', 0.85)})`;
+  $('#page-btn').querySelector('span').textContent = 'TURN THE PAGE →';
+
+  bookview.classList.add('open');
+  bookview.setAttribute('aria-hidden', 'false');
   audio.blip(760);
-  gsap.fromTo('.modal__panel', { y: 40, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6, ease: 'power3.out' });
+
+  // start closed: cover shut, book centered on its cover, left paper hidden.
+  // z offsets keep real stacking: closed cover(6) > page(3) > chapters(0);
+  // the turned page rises to 9 so it lands ON TOP of the opened cover.
+  gsap.set('#book-cover', { rotationY: 0, z: 6 });
+  gsap.set('#book-flip', { rotationY: 0, z: 3 });
+  gsap.set('#book3d', { xPercent: -25 });
+  gsap.set('#book-left', { autoAlpha: 0 });
+  gsap.set('#page-btn', { autoAlpha: 0, y: 14 });
+
+  gsap.timeline()
+    .fromTo('.bookview__scrim', { opacity: 0 }, { opacity: 1, duration: 0.6 })
+    .fromTo('#book3d',
+      { scale: 0.55, y: 90, rotationX: 24, opacity: 0 },
+      { scale: 1, y: 0, rotationX: 8, opacity: 1, duration: 1.1, ease: 'power3.out' }, '<0.15')
+    // the cover opens itself…
+    .add(() => audio.pageTurn(), '+=0.35')
+    .to('#book-cover', { rotationY: -180, duration: 1.6, ease: 'power2.inOut' }, '<')
+    .to('#book3d', { xPercent: 0, duration: 1.6, ease: 'power2.inOut' }, '<')
+    .to('#book-left', { autoAlpha: 1, duration: 0.45 }, '<0.7')
+    // …and the words arrive
+    .fromTo('.book3d__face--front .bookpage__kicker, .book3d__face--front .bookpage__body, .book3d__face--front .bookpage__quote',
+      { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.8, stagger: 0.18, ease: 'power2.out' }, '-=0.5')
+    .to('#page-btn', { autoAlpha: 1, y: 0, duration: 0.6 }, '<0.4');
 }
-$('#modal-close').addEventListener('click', () => $('#book-modal').classList.remove('open'));
-$('#book-modal').addEventListener('click', (e) => {
-  if (e.target === e.currentTarget) $('#book-modal').classList.remove('open');
-});
+
+function turnPage() {
+  if (pageState === 1) {
+    pageState = 2;
+    audio.pageTurn();
+    gsap.timeline()
+      .to('#book-flip', { rotationY: -180, z: 9, duration: 1.5, ease: 'power2.inOut' })
+      .fromTo('.bookpage--under > *',
+        { opacity: 0.4 }, { opacity: 1, duration: 0.7 }, '-=0.5');
+    $('#page-btn').querySelector('span').textContent = 'CLOSE THE BOOK ✕';
+  } else {
+    closeBook();
+  }
+}
+
+function closeBook() {
+  if (!bookOpen) return;
+  audio.pageTurn();
+  gsap.timeline({
+    onComplete: () => {
+      bookview.classList.remove('open');
+      bookview.setAttribute('aria-hidden', 'true');
+      bookOpen = false;
+    }
+  })
+    .to('#book3d', { scale: 0.6, y: 70, opacity: 0, duration: 0.7, ease: 'power2.in' })
+    .to('.bookview__scrim', { opacity: 0, duration: 0.5 }, '<0.2');
+}
+
+$('#page-btn').addEventListener('click', turnPage);
+$('#bookview-close').addEventListener('click', closeBook);
+$('#bookview-scrim').addEventListener('click', closeBook);
+window.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeBook(); });
 
 // ────────────────────────────────────────────────
 // SCENE 4 — TALK TO RANDY (conversational avatar)
