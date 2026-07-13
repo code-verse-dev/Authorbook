@@ -7,7 +7,7 @@
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Experience, SCENES } from './experience.js';
-import { BOOKS, paintCover } from './covers.js';
+import { BOOKS, paintCover, paintHeroArt, paintDeskArt } from './covers.js';
 import { audio } from './audio.js';
 import './style.css';
 
@@ -243,10 +243,24 @@ function revealSite() {
   ScrollTrigger.refresh();
   // carry the visitor down into the site
   site.scrollIntoView({ behavior: 'smooth' });
-  gsap.from('.site__hero > *', { opacity: 0, y: 30, stagger: 0.12, duration: 1.2, delay: 0.5, ease: 'power3.out' });
+  gsap.from('.hero2__left > *, .hero2__right', { opacity: 0, y: 30, stagger: 0.12, duration: 1.2, delay: 0.5, ease: 'power3.out' });
   $$('#captions .caption').forEach((c) => gsap.set(c, { autoAlpha: 0 }));
   gsap.to('#hud', { opacity: 0, duration: 1 });
 }
+
+// stylized placeholder art for the photo slots (drop in real photos anytime)
+$('[data-art="hero"]').src = paintHeroArt().toDataURL('image/jpeg', 0.85);
+$('[data-art="desk"]').src = paintDeskArt().toDataURL('image/jpeg', 0.85);
+
+// hero shelf — the four covers standing on the glowing pedestal
+const shelf = $('#hero-shelf');
+BOOKS.forEach((book) => {
+  const img = document.createElement('img');
+  img.src = paintCover(book, 256, 368).toDataURL('image/jpeg', 0.85);
+  img.alt = book.title;
+  img.addEventListener('click', () => openBook(book));
+  shelf.appendChild(img);
+});
 
 // book cards in the final grid
 const grid = $('#book-grid');
@@ -268,6 +282,10 @@ grid.addEventListener('click', (e) => {
   const btn = e.target.closest('[data-book]');
   if (btn) openBook(BOOKS.find((b) => b.id === btn.dataset.book));
 });
+
+// carousel arrows
+$('#books-prev').addEventListener('click', () => grid.scrollBy({ left: -grid.clientWidth * 0.7 }));
+$('#books-next').addEventListener('click', () => grid.scrollBy({ left: grid.clientWidth * 0.7 }));
 
 $('#join-form').addEventListener('submit', (e) => {
   e.preventDefault();
