@@ -7,7 +7,16 @@
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Experience, SCENES } from './experience.js';
-import { BOOKS, paintCover, paintHeroArt, paintDeskArt } from './covers.js';
+import { BOOKS } from './covers.js';
+import heroImg from './assets/hero.jpg';
+import aboutImg from './assets/about.jpg';
+import figImg from './assets/quotefig.jpg';
+import covQuantum from './assets/cov-quantum.jpg';
+import covForce from './assets/cov-force.jpg';
+import covJuly from './assets/cov-july.jpg';
+import covEgg from './assets/cov-egg.jpg';
+
+const COVER_IMG = { quantum: covQuantum, force: covForce, july: covJuly, egg: covEgg };
 import { audio } from './audio.js';
 import './style.css';
 
@@ -34,6 +43,7 @@ window.scrollTo(0, 0);
 // THREE.JS WORLD
 // ────────────────────────────────────────────────
 const exp = new Experience($('#webgl'), {
+  coverImages: COVER_IMG,
   onBook: openBook,
   onPlanet: (book, mesh) => {
     // light-speed punch toward the chosen world
@@ -248,19 +258,10 @@ function revealSite() {
   gsap.to('#hud', { opacity: 0, duration: 1 });
 }
 
-// stylized placeholder art for the photo slots (drop in real photos anytime)
-$('[data-art="hero"]').src = paintHeroArt().toDataURL('image/jpeg', 0.85);
-$('[data-art="desk"]').src = paintDeskArt().toDataURL('image/jpeg', 0.85);
-
-// hero shelf — the four covers standing on the glowing pedestal
-const shelf = $('#hero-shelf');
-BOOKS.forEach((book) => {
-  const img = document.createElement('img');
-  img.src = paintCover(book, 256, 368).toDataURL('image/jpeg', 0.85);
-  img.alt = book.title;
-  img.addEventListener('click', () => openBook(book));
-  shelf.appendChild(img);
-});
+// the real graphics from the design
+$('[data-art="hero"]').src = heroImg;
+$('[data-art="desk"]').src = aboutImg;
+$('[data-art="fig"]').src = figImg;
 
 // book cards in the final grid
 const grid = $('#book-grid');
@@ -268,7 +269,7 @@ BOOKS.forEach((book) => {
   const card = document.createElement('div');
   card.className = 'book-card';
   const img = document.createElement('img');
-  img.src = paintCover(book, 256, 368).toDataURL('image/jpeg', 0.85);
+  img.src = COVER_IMG[book.id];
   img.alt = book.title;
   card.appendChild(img);
   card.insertAdjacentHTML('beforeend', `
@@ -324,7 +325,7 @@ function openBook(book) {
   $('#bp-ex1').textContent = book.excerpt;
   $('#bp-ex2').textContent = book.excerpt2;
   $('#bp-chapters').innerHTML = book.chapters.map((c) => `<li>${c}</li>`).join('');
-  $('#bp-coverimg').style.backgroundImage = `url(${paintCover(book, 320, 460).toDataURL('image/jpeg', 0.85)})`;
+  $('#bp-coverimg').style.backgroundImage = `url(${COVER_IMG[book.id]})`;
   $('#page-btn').querySelector('span').textContent = 'TURN THE PAGE →';
 
   bookview.classList.add('open');

@@ -221,39 +221,15 @@ a, button, input { cursor: none; }
 .flog--med { font-weight: 600; font-size: 1rem; letter-spacing: 0.02em; }
 .flog--yah { font-weight: 600; font-size: 1rem; font-style: italic; }
 .hero2__right { position: relative; }
-.hero2__portrait {
-  width: 100%; max-width: 520px; display: block; margin-left: auto;
-  border-radius: 14px;
-  mask-image: linear-gradient(to bottom, #000 78%, transparent);
-  -webkit-mask-image: linear-gradient(to bottom, #000 78%, transparent);
-}
-.hero2__quote {
-  position: absolute; top: 6%; right: 0;
-  width: min(64%, 300px);
-  background: rgba(6,6,10,0.55); backdrop-filter: blur(6px);
-  border: 1px solid rgba(212,175,95,0.18); border-radius: 10px;
-  padding: 1.3rem 1.5rem;
+.hero2__collage {
+  width: 100%; display: block;
+  border-radius: 4px;
+  mask-image: radial-gradient(140% 140% at 50% 40%, #000 62%, transparent 98%);
+  -webkit-mask-image: radial-gradient(140% 140% at 50% 40%, #000 62%, transparent 98%);
+  filter: drop-shadow(0 40px 60px rgba(0,0,0,0.6));
 }
 .hero2__qmark { font-family: var(--serif); color: var(--gold); font-size: 2.2rem; line-height: 1; margin-bottom: 0.5rem; }
-.hero2__quote p { font-size: 0.98rem; line-height: 1.55; font-weight: 300; }
 .signature { font-family: 'Great Vibes', var(--serif); color: var(--gold-bright); font-size: 1.5rem; margin-top: 0.7rem; }
-.hero2__shelf { position: relative; max-width: 1000px; margin: 1.5rem auto 0; text-align: center; }
-.hero2__shelfbooks { display: flex; justify-content: center; gap: clamp(0.8rem, 2.4vw, 2rem); position: relative; z-index: 1; }
-.hero2__shelfbooks img {
-  width: clamp(88px, 12vw, 150px); aspect-ratio: 512/736; object-fit: cover;
-  box-shadow: 0 30px 50px -20px rgba(0,0,0,0.95);
-  transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
-}
-.hero2__shelfbooks img:nth-child(1) { transform: perspective(700px) rotateY(14deg); }
-.hero2__shelfbooks img:nth-child(2) { transform: perspective(700px) rotateY(6deg); }
-.hero2__shelfbooks img:nth-child(3) { transform: perspective(700px) rotateY(-6deg); }
-.hero2__shelfbooks img:nth-child(4) { transform: perspective(700px) rotateY(-14deg); }
-.hero2__shelfbooks img:hover { transform: perspective(700px) rotateY(0) translateY(-12px); }
-.hero2__pedestal {
-  height: 60px; margin-top: -8px;
-  background: radial-gradient(ellipse 55% 100% at 50% 0%, rgba(212,175,95,0.4), rgba(95,127,212,0.12) 55%, transparent 75%);
-  filter: blur(2px);
-}
 
 /* ── About the author card ────────────────────── */
 .about2 { padding: 3rem clamp(1.4rem, 5vw, 4rem); }
@@ -267,10 +243,6 @@ a, button, input { cursor: none; }
 }
 .about2__media { position: relative; border-radius: 14px; overflow: hidden; min-height: 320px; }
 .about2__media img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.about2__overlay { position: absolute; left: 1.4rem; bottom: 1.2rem; }
-.about2__overlay p:first-child {
-  font-size: 0.66rem; letter-spacing: 0.42em; color: var(--white); line-height: 2;
-}
 .about2__name { font-family: var(--serif); font-size: clamp(2rem, 3.6vw, 2.9rem); font-weight: 500; display: flex; align-items: center; gap: 1.4rem; margin-bottom: 1.4rem; }
 .about2__dash { display: inline-block; width: 70px; height: 1px; background: var(--gold); }
 .about2__bio { color: var(--grey); line-height: 1.9; font-size: 0.9rem; font-weight: 300; max-width: 560px; margin-bottom: 2.2rem; }
@@ -321,7 +293,14 @@ a, button, input { cursor: none; }
     #05060c;
   padding: 2.6rem 2.4rem 5rem;
 }
-.duo__qtext { font-family: var(--serif); font-style: italic; font-size: clamp(1.3rem, 2vw, 1.7rem); line-height: 1.5; max-width: 380px; }
+.duo__fig {
+  position: absolute; right: 0; top: 0; height: 100%; width: auto;
+  object-fit: cover; opacity: 0.9;
+  mask-image: linear-gradient(to left, #000 55%, transparent);
+  -webkit-mask-image: linear-gradient(to left, #000 55%, transparent);
+}
+.duo__quote > :not(.duo__fig) { position: relative; z-index: 1; }
+.duo__qtext { font-family: var(--serif); font-style: italic; font-size: clamp(1.3rem, 2vw, 1.7rem); line-height: 1.5; max-width: 340px; }
 .duo__play {
   position: absolute; left: 2.2rem; bottom: 2rem;
   width: 54px; height: 54px; border-radius: 50%;
@@ -357,7 +336,7 @@ a, button, input { cursor: none; }
   border-color: rgba(244,212,136,0.5);
   box-shadow: 0 30px 60px -30px rgba(212,175,95,0.35);
 }
-.book-card img { width: 150px; height: 218px; object-fit: cover; margin-bottom: 1.4rem; box-shadow: 0 20px 40px -18px rgba(0,0,0,0.9); }
+.book-card img { width: 132px; height: auto; margin-bottom: 1.4rem; box-shadow: 0 20px 40px -18px rgba(0,0,0,0.9); border-radius: 3px; }
 .book-card h4 { font-family: var(--serif); font-size: 1.15rem; font-weight: 600; margin-bottom: 0.4rem; }
 .book-card p { color: var(--grey); font-size: 0.72rem; line-height: 1.6; margin-bottom: 1.2rem; }
 #join-form { display: flex; gap: 0.8rem; flex-wrap: wrap; }

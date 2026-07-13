@@ -358,8 +358,12 @@ export class Experience {
     this.booksGroup = g;
     this.bookMeshes = [];
 
+    const texLoader = new THREE.TextureLoader();
     BOOKS.forEach((book, i) => {
-      const cover = new THREE.CanvasTexture(paintCover(book));
+      // real cover art from the design when available, painted fallback otherwise
+      const cover = this.opts.coverImages?.[book.id]
+        ? texLoader.load(this.opts.coverImages[book.id])
+        : new THREE.CanvasTexture(paintCover(book));
       const spine = new THREE.CanvasTexture(paintSpine(book));
       cover.colorSpace = THREE.SRGBColorSpace;
       spine.colorSpace = THREE.SRGBColorSpace;
@@ -476,44 +480,87 @@ export class Experience {
     this.scene.add(g);
     this.dna = g;
 
-    const N = 900, height = 34, turns = 5.5, radius = 4.2;
-    const mkStrand = (phase, color) => {
+    // tilted inner group so the helix reads in true 3D, not as a flat coil
+    const inner = new THREE.Group();
+    inner.rotation.z = 0.3;
+    inner.rotation.x = 0.1;
+    g.add(inner);
+    this.dnaInner = inner;
+
+    const N = 1500, height = 38, turns = 5.5, radius = 4.4;
+    this.dnaGeom = { height, turns, radius };
+    const mkStrand = (phase, c1, c2) => {
       const pos = new Float32Array(N * 3);
+      const col = new Float32Array(N * 3);
+      const ca = new THREE.Color(c1), cb = new THREE.Color(c2), tmp = new THREE.Color();
       for (let i = 0; i < N; i++) {
         const t = i / N;
         const a = t * Math.PI * 2 * turns + phase;
         pos[i * 3] = Math.cos(a) * radius;
         pos[i * 3 + 1] = (t - 0.5) * height;
         pos[i * 3 + 2] = Math.sin(a) * radius;
+        tmp.lerpColors(ca, cb, t);
+        col[i * 3] = tmp.r; col[i * 3 + 1] = tmp.g; col[i * 3 + 2] = tmp.b;
       }
       const geo = new THREE.BufferGeometry();
       geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+      geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
       return new THREE.Points(geo, new THREE.PointsMaterial({
-        size: 0.45, color, map: this.dotTex, transparent: true, opacity: 0.85,
+        size: 0.55, vertexColors: true, map: this.dotTex, transparent: true, opacity: 0.95,
         depthWrite: false, blending: THREE.AdditiveBlending
       }));
     };
-    g.add(mkStrand(0, '#f4d488'));
-    g.add(mkStrand(Math.PI, '#7fa0e8'));
+    inner.add(mkStrand(0, '#ffe9b0', '#d4964f'));            // gold strand, bright → amber
+    inner.add(mkStrand(Math.PI, '#bcd0ff', '#4f6fd4'));      // blue strand, ice → deep
 
-    // rungs
-    const rungs = 46;
+    // base pairs: soft lines with glowing nodes at both ends
+    const rungs = 48;
     const rungPos = new Float32Array(rungs * 2 * 3);
+    const nodePos = new Float32Array(rungs * 2 * 3);
+    const nodeCol = new Float32Array(rungs * 2 * 3);
+    const gold = new THREE.Color('#ffe9b0'), blue = new THREE.Color('#9db8ff');
     for (let i = 0; i < rungs; i++) {
       const t = i / rungs;
       const a = t * Math.PI * 2 * turns;
-      rungPos[i * 6] = Math.cos(a) * radius;
-      rungPos[i * 6 + 1] = (t - 0.5) * height;
-      rungPos[i * 6 + 2] = Math.sin(a) * radius;
-      rungPos[i * 6 + 3] = Math.cos(a + Math.PI) * radius;
-      rungPos[i * 6 + 4] = (t - 0.5) * height;
-      rungPos[i * 6 + 5] = Math.sin(a + Math.PI) * radius;
+      const x1 = Math.cos(a) * radius, y = (t - 0.5) * height, z1 = Math.sin(a) * radius;
+      const x2 = Math.cos(a + Math.PI) * radius, z2 = Math.sin(a + Math.PI) * radius;
+      rungPos.set([x1, y, z1, x2, y, z2], i * 6);
+      nodePos.set([x1, y, z1, x2, y, z2], i * 6);
+      nodeCol.set([gold.r, gold.g, gold.b, blue.r, blue.g, blue.b], i * 6);
     }
     const rungGeo = new THREE.BufferGeometry();
     rungGeo.setAttribute('position', new THREE.BufferAttribute(rungPos, 3));
-    g.add(new THREE.LineSegments(rungGeo, new THREE.LineBasicMaterial({
-      color: '#8a7340', transparent: true, opacity: 0.5, blending: THREE.AdditiveBlending
+    inner.add(new THREE.LineSegments(rungGeo, new THREE.LineBasicMaterial({
+      color: '#a8905c', transparent: true, opacity: 0.3, blending: THREE.AdditiveBlending
     })));
+    const nodeGeo = new THREE.BufferGeometry();
+    nodeGeo.setAttribute('position', new THREE.BufferAttribute(nodePos, 3));
+    nodeGeo.setAttribute('color', new THREE.BufferAttribute(nodeCol, 3));
+    inner.add(new THREE.Points(nodeGeo, new THREE.PointsMaterial({
+      size: 1.05, vertexColors: true, map: this.dotTex, transparent: true, opacity: 0.9,
+      depthWrite: false, blending: THREE.AdditiveBlending
+    })));
+
+    // life-energy pulses climbing the strands
+    this.dnaPulses = [];
+    for (let i = 0; i < 8; i++) {
+      const s = new THREE.Sprite(new THREE.SpriteMaterial({
+        map: i % 2 ? this.glowBlue : this.glowGold, transparent: true, opacity: 0.9,
+        depthWrite: false, blending: THREE.AdditiveBlending
+      }));
+      s.scale.setScalar(1.7);
+      inner.add(s);
+      this.dnaPulses.push({ s, t: Math.random(), speed: 0.045 + Math.random() * 0.05, phase: (i % 2) * Math.PI });
+    }
+
+    // ambient halo behind the helix
+    const halo = new THREE.Sprite(new THREE.SpriteMaterial({
+      map: this.glowGold, transparent: true, opacity: 0.1,
+      depthWrite: false, blending: THREE.AdditiveBlending
+    }));
+    halo.position.z = -10;
+    halo.scale.set(30, 46, 1);
+    g.add(halo);
 
     // six era-markers along the helix
     this.dnaMarkers = [];
@@ -526,7 +573,7 @@ export class Experience {
       const a = t * Math.PI * 2 * turns;
       m.position.set(Math.cos(a) * radius, (t - 0.5) * height, Math.sin(a) * radius);
       m.scale.setScalar(3.5);
-      g.add(m);
+      inner.add(m);
       this.dnaMarkers.push(m);
     }
   }
@@ -539,15 +586,74 @@ export class Experience {
     this.network = g;
 
     const R = 9;
+    g.rotation.z = 0.41; // Earth's axial tilt
+
+    // procedural night-earth texture: deep oceans, faintly lit continents
+    const ec = document.createElement('canvas');
+    ec.width = 1024; ec.height = 512;
+    const ectx = ec.getContext('2d');
+    const ograd = ectx.createLinearGradient(0, 0, 0, 512);
+    ograd.addColorStop(0, '#0a1630');
+    ograd.addColorStop(0.5, '#081226');
+    ograd.addColorStop(1, '#0a1630');
+    ectx.fillStyle = ograd;
+    ectx.fillRect(0, 0, 1024, 512);
+    // continent masses: clustered soft blobs
+    for (let c = 0; c < 9; c++) {
+      const cx = Math.random() * 1024, cy = 80 + Math.random() * 350;
+      for (let b = 0; b < 26; b++) {
+        const x = cx + (Math.random() - 0.5) * 200;
+        const y = cy + (Math.random() - 0.5) * 110;
+        const r = 8 + Math.random() * 34;
+        const grd = ectx.createRadialGradient(x, y, 1, x, y, r);
+        grd.addColorStop(0, 'rgba(46,74,110,0.55)');
+        grd.addColorStop(1, 'rgba(46,74,110,0)');
+        ectx.fillStyle = grd;
+        ectx.beginPath(); ectx.arc(x, y, r, 0, Math.PI * 2); ectx.fill();
+      }
+    }
+    // city shimmer on the landmasses
+    for (let i = 0; i < 900; i++) {
+      const x = Math.random() * 1024, y = Math.random() * 512;
+      ectx.fillStyle = `rgba(244,212,136,${Math.random() * 0.35})`;
+      ectx.fillRect(x, y, 1.5, 1.5);
+    }
+    const earthTex = new THREE.CanvasTexture(ec);
+    earthTex.colorSpace = THREE.SRGBColorSpace;
+
     const globe = new THREE.Mesh(
-      new THREE.SphereGeometry(R, 48, 48),
-      new THREE.MeshStandardMaterial({ color: '#060a16', roughness: 0.85, metalness: 0.1 })
+      new THREE.SphereGeometry(R, 96, 96),
+      new THREE.MeshStandardMaterial({
+        map: earthTex, roughness: 0.62, metalness: 0.05,
+        emissive: new THREE.Color('#16233f'), emissiveMap: earthTex, emissiveIntensity: 0.55
+      })
     );
     g.add(globe);
-    g.add(new THREE.Mesh(
-      new THREE.SphereGeometry(R * 1.002, 24, 24),
-      new THREE.MeshBasicMaterial({ color: '#1c2c55', wireframe: true, transparent: true, opacity: 0.16 })
-    ));
+
+    // fresnel atmosphere — soft blue limb glow, smooth and volumetric
+    const atmoMat = new THREE.ShaderMaterial({
+      transparent: true, depthWrite: false, side: THREE.BackSide,
+      blending: THREE.AdditiveBlending,
+      uniforms: { uColor: { value: new THREE.Color('#4f7fd4') } },
+      vertexShader: /* glsl */`
+        varying float vI;
+        void main() {
+          vec3 n = normalize(normalMatrix * normal);
+          vec3 p = normalize((modelViewMatrix * vec4(position, 1.0)).xyz);
+          // brightest right at the planet's limb, melting outward into space
+          vI = pow(clamp(dot(n, p), 0.0, 1.0) + 0.22, 6.0) * 1.15;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }`,
+      fragmentShader: /* glsl */`
+        uniform vec3 uColor;
+        varying float vI;
+        void main() { gl_FragColor = vec4(uColor, 1.0) * clamp(vI, 0.0, 1.0); }`
+    });
+    g.add(new THREE.Mesh(new THREE.SphereGeometry(R * 1.18, 64, 64), atmoMat));
+    // inner rim light on the day side
+    const rim = new THREE.PointLight('#6f9fe8', 140, 80);
+    rim.position.set(-16, 6, 10);
+    g.add(rim);
 
     // minds — light dots clustered like population
     const N = 2400;
@@ -572,7 +678,7 @@ export class Experience {
     geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
     geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
     const minds = new THREE.Points(geo, new THREE.PointsMaterial({
-      size: 0.65, vertexColors: true, map: this.dotTex, transparent: true,
+      size: 0.5, vertexColors: true, map: this.dotTex, transparent: true, opacity: 0.95,
       depthWrite: false, blending: THREE.AdditiveBlending
     }));
     g.add(minds);
@@ -608,12 +714,6 @@ export class Experience {
     g.add(you);
     this.youNode = you;
 
-    const atmo = new THREE.Sprite(new THREE.SpriteMaterial({
-      map: this.glowBlue, transparent: true, opacity: 0.4,
-      depthWrite: false, blending: THREE.AdditiveBlending
-    }));
-    atmo.scale.setScalar(R * 3.4);
-    g.add(atmo);
   }
 
   // ═════════ scene 11 — the golden egg ═════════
@@ -965,7 +1065,18 @@ export class Experience {
     const act = this.sceneActivity('dna');
     this.dna.visible = act > 0.01;
     if (!this.dna.visible) return;
-    this.dna.rotation.y += dt * 0.13;
+    this.dnaInner.rotation.y += dt * 0.12;
+    this.dna.position.y = Math.sin(t * 0.4) * 0.6; // gentle drift
+
+    // pulses ride the strands upward
+    const { height, turns, radius } = this.dnaGeom;
+    this.dnaPulses.forEach((p) => {
+      p.t = (p.t + dt * p.speed) % 1;
+      const a = p.t * Math.PI * 2 * turns + p.phase;
+      p.s.position.set(Math.cos(a) * radius, (p.t - 0.5) * height, Math.sin(a) * radius);
+      p.s.material.opacity = 0.5 + Math.sin(p.t * Math.PI) * 0.5;
+    });
+
     // era markers glow in sequence as the scene plays
     this.dnaMarkers.forEach((m, i) => {
       const phase = THREE.MathUtils.clamp(act * 7 - i, 0, 1);
