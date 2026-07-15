@@ -1,5 +1,5 @@
 // RANDY FISH — static author site
-// No WebGL, no animation journey: just light, dependency-free interactions.
+// Light, dependency-free interactions only.
 import './style.css';
 
 const $ = (s) => document.querySelector(s);
@@ -20,7 +20,7 @@ links.addEventListener('click', (e) => {
 });
 
 // ── active nav link follows the section in view ──
-const sections = ['home', 'about', 'philosophy', 'books', 'join', 'footer']
+const sections = ['home', 'about', 'books', 'philosophy', 'join', 'footer']
   .map((id) => document.getElementById(id))
   .filter(Boolean);
 const navAnchors = $$('.nav__links a');
@@ -45,12 +45,14 @@ const reveal = new IntersectionObserver((entries) => {
 }, { threshold: 0.12 });
 $$('.reveal').forEach((el) => reveal.observe(el));
 
+// ── books row arrows (scroll the row when it overflows) ──
+const row = $('#books-row');
+$('#books-prev')?.addEventListener('click', () => row.scrollBy({ left: -row.clientWidth * 0.7, behavior: 'smooth' }));
+$('#books-next')?.addEventListener('click', () => row.scrollBy({ left: row.clientWidth * 0.7, behavior: 'smooth' }));
+
 // ── newsletter ──
 $('#join-form').addEventListener('submit', (e) => {
   e.preventDefault();
   $('#join-ok').classList.add('show');
   e.target.querySelector('input').value = '';
 });
-
-// ── back to top ──
-$('#to-top').addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
