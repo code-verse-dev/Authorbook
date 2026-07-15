@@ -34,7 +34,7 @@ const spy = new IntersectionObserver((entries) => {
 sections.forEach((s) => spy.observe(s));
 
 // ── subtle reveal-on-scroll for cards ──
-$$('.card, .hero__shelf').forEach((el) => el.classList.add('reveal'));
+$$('.card').forEach((el) => el.classList.add('reveal'));
 const reveal = new IntersectionObserver((entries) => {
   entries.forEach((entry) => {
     if (entry.isIntersecting) {
