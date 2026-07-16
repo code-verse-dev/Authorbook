@@ -130,12 +130,19 @@ a { text-decoration: none; color: inherit; }
   gap: clamp(1rem, 2.6vw, 2.6rem);
   align-content: start; align-items: start;
   padding: clamp(1.4rem, 3vw, 2.4rem) clamp(1.2rem, 4vw, 4rem) 0;
+  padding-left: clamp(0.3rem, 1.2vw, 1rem);
   max-width: 1520px; width: 100%; margin: 0 auto;
   box-sizing: border-box;
   /* Keep copy above the books */
   padding-bottom: 38%;
   pointer-events: none;
 }
+.hero__copy {
+  margin-left: clamp(-0.6rem, -1.2vw, 0);
+  max-width: 480px;
+}
+.hero__copy,
+.hero__quote,
 .hero__grid a,
 .hero__grid button { pointer-events: auto; }
 .hero__h1 {
