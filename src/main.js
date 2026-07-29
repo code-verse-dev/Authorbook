@@ -56,3 +56,38 @@ $('#join-form').addEventListener('submit', (e) => {
   $('#join-ok').classList.add('show');
   e.target.querySelector('input').value = '';
 });
+
+// ── book PDF preview modal ──
+const pdfModal = $('#pdf-modal');
+const pdfFrame = $('#pdf-frame');
+const pdfTitle = $('#pdf-modal-title');
+const pdfOpen = $('#pdf-open');
+
+function openPdfPreview(pdf, title) {
+  pdfTitle.textContent = title || 'Book preview';
+  pdfFrame.src = pdf;
+  pdfOpen.href = pdf;
+  pdfModal.hidden = false;
+  document.body.style.overflow = 'hidden';
+}
+
+function closePdfPreview() {
+  pdfModal.hidden = true;
+  pdfFrame.src = '';
+  document.body.style.overflow = '';
+}
+
+$$('.js-book-preview').forEach((btn) => {
+  btn.addEventListener('click', (e) => {
+    e.preventDefault();
+    openPdfPreview(btn.dataset.pdf, btn.dataset.title);
+  });
+});
+
+pdfModal?.addEventListener('click', (e) => {
+  if (e.target.closest('[data-close-pdf]')) closePdfPreview();
+});
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && pdfModal && !pdfModal.hidden) closePdfPreview();
+});
