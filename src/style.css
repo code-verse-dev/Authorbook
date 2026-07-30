@@ -218,16 +218,23 @@ a { text-decoration: none; color: inherit; }
 .books__head { margin-bottom: 2rem; }
 .books__head .h-serif { margin-bottom: 0; }
 .books__row {
-  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
+  display: flex;
   gap: clamp(1.4rem, 2.6vw, 2.4rem);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  padding-bottom: 0.4rem;
 }
+.books__row::-webkit-scrollbar { display: none; }
 .bookcard {
   position: relative;
+  flex: 0 0 clamp(200px, 22vw, 260px);
   display: flex; flex-direction: column; align-items: center; text-align: center;
   gap: 0.7rem;
   border-radius: 0;
   padding: 1.2rem 1.4rem 1.5rem;
   background: #000;
+  scroll-snap-align: start;
   transition: transform 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 .bookcard::before,
@@ -358,12 +365,7 @@ a { text-decoration: none; color: inherit; }
   .hero__cta { margin-bottom: 1.4rem; }
   .grid--duo { grid-template-columns: 1fr; }
   .bookszone__arrow { display: none; }
-  .books__row {
-    display: flex; overflow-x: auto; scroll-snap-type: x mandatory;
-    scrollbar-width: none; padding-bottom: 0.6rem;
-  }
-  .books__row::-webkit-scrollbar { display: none; }
-  .bookcard { flex: 0 0 min(64vw, 300px); scroll-snap-align: start; }
+  .bookcard { flex-basis: min(64vw, 300px); }
 }
 
 @media (max-width: 720px) {
